@@ -1,54 +1,56 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { writeFile, readFileSync } from 'fs';
+import fs from 'fs';
 
 const app = express();
+const port = 3000;
+
 app.use(bodyParser.json());
 
-interface Submission {
-    name: string;
-    email: string;
-    phone: string;
-    github_link: string;
-    stopwatch_time: string;
-}
+let submissions: any[] = [];
 
-let submissions: Submission[] = [];
-const dbFile = 'db.json';
+// Load submissions from JSON file
+const loadSubmissions = () => {
+    try {
+        const data = fs.readFileSync('./db.json', 'utf8');
+        submissions = JSON.parse(data);
+    } catch (error) {
+        console.error('Error loading submissions:', error);
+    }
+};
 
-try {
-    const data = readFileSync(dbFile, 'utf8');
-    submissions = JSON.parse(data);
-} catch (err) {
-    console.error('Error reading database:', err);
-}
+// Save submissions to JSON file
+const saveSubmissions = () => {
+    try {
+        fs.writeFileSync('db.json', JSON.stringify(submissions, null, 2));
+    } catch (error) {
+        console.error('Error saving submissions:', error);
+    }
+};
+
+// Initial load of submissions
+loadSubmissions();
 
 app.get('/ping', (req, res) => {
     res.send(true);
 });
 
 app.post('/submit', (req, res) => {
-    const submission: Submission = req.body;
-    submissions.push(submission);
-    writeFile(dbFile, JSON.stringify(submissions), (err) => {
-        if (err) {
-            console.error('Error writing to database:', err);
-            res.status(500).send('Internal Server Error');
-        } else {
-            res.send('Submission saved');
-        }
-    });
+    const { name, email, phone, github_link, stopwatch_time } = req.body;
+    submissions.push({ name, email, phone, github_link, stopwatch_time });
+    saveSubmissions();
+    res.send({ success: true });
 });
 
 app.get('/read', (req, res) => {
-    const index = parseInt(req.query.index as string, 10);
+    const index = parseInt(req.query.index as string);
     if (index >= 0 && index < submissions.length) {
-        res.json(submissions[index]);
+        res.send({ ...submissions[index], total_submissions: submissions.length });
     } else {
-        res.status(404).send('Not Found');
+        res.status(400).send({ error: 'Index out of range' });
     }
 });
 
-app.listen(3000, () => {
-    console.log('Backend server is running on http://localhost:3000');
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
 });
