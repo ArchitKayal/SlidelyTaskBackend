@@ -48,6 +48,17 @@ app.get('/read', (req, res) => {
     }
 });
 
+app.delete('/delete', (req, res) => {
+    const index = parseInt(req.query.index as string);
+    if (index >= 0 && index < submissions.length) {
+        submissions.splice(index, 1);
+        saveSubmissions();
+        res.send({ success: true });
+    } else {
+        res.status(400).send({ error: 'Index out of range' });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
