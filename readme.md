@@ -9,6 +9,7 @@
 
 ## After Setup
 If the setup is done properly the following message will be displayed in the terminal
+
 ![message](image.png)
 
 ## Postman Check
@@ -16,4 +17,5 @@ We check using Postman if our api call is working.
 1. We run the server
 2. We start postman and select GET and put this address in it `http://localhost:3000/ping`
 3. We should get `true` like the image below
+
 ![postamn picture](image-1.png)
