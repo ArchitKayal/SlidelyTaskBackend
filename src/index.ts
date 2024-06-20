@@ -9,17 +9,15 @@ app.use(bodyParser.json());
 
 let submissions: any[] = [];
 
-// Load submissions from JSON file
 const loadSubmissions = () => {
     try {
-        const data = fs.readFileSync('./db.json', 'utf8');
+        const data = fs.readFileSync('db.json', 'utf8');
         submissions = JSON.parse(data);
     } catch (error) {
         console.error('Error loading submissions:', error);
     }
 };
 
-// Save submissions to JSON file
 const saveSubmissions = () => {
     try {
         fs.writeFileSync('db.json', JSON.stringify(submissions, null, 2));
@@ -28,7 +26,6 @@ const saveSubmissions = () => {
     }
 };
 
-// Initial load of submissions
 loadSubmissions();
 
 app.get('/ping', (req, res) => {
